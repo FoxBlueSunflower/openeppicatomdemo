@@ -1,0 +1,1164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Open Eppic — The Atom</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Inter:wght@400;500;600&display=swap');
+
+  :root{
+    --ink:#16140F;
+    --parchment:#EDE6D6;
+    --parchment-dim:#E2D9C4;
+    --card:#F6F1E4;
+    --thread:#B8863B;
+    --thread-soft:#D8B27C;
+    --sage:#6B7A5E;
+    --rust:#8B4A3E;
+    --line:#C9BEA2;
+    --shadow: 0 1px 0 rgba(22,20,15,0.06);
+    --serif: 'Fraunces', Georgia, serif;
+    --sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  }
+
+  *{ box-sizing:border-box; }
+  html,body{ margin:0; padding:0; }
+  body{
+    background: var(--parchment);
+    background-image:
+      radial-gradient(ellipse at top left, rgba(184,134,59,0.06), transparent 45%),
+      radial-gradient(ellipse at bottom right, rgba(107,122,94,0.05), transparent 40%);
+    color: var(--ink);
+    font-family: var(--sans);
+    min-height:100vh;
+  }
+
+  a{ color:inherit; }
+
+  .wrap{
+    max-width: 880px;
+    margin: 0 auto;
+    padding: 48px 24px 96px;
+  }
+
+  header.masthead{
+    display:flex; align-items:baseline; justify-content:space-between;
+    border-bottom: 1px solid var(--line);
+    padding-bottom: 18px;
+    margin-bottom: 40px;
+    gap: 16px; flex-wrap: wrap;
+  }
+  header.masthead .title{
+    font-family: var(--serif);
+    font-size: 28px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+  header.masthead .title small{
+    display:block;
+    font-family: var(--sans);
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--thread);
+    margin-bottom: 4px;
+  }
+  .who{ font-size: 13px; color:#57503f; display:flex; align-items:center; gap:10px; }
+  .who button{
+    background:none; border:1px solid var(--line); color:var(--ink);
+    font-family: var(--sans); font-size:12px; padding:6px 12px; border-radius:3px;
+    cursor:pointer;
+  }
+  .who button:hover{ border-color: var(--ink); }
+
+  .banner{
+    background: #FBF3D9;
+    border: 1px solid var(--thread-soft);
+    border-radius: 4px;
+    padding: 14px 18px;
+    font-size: 13px;
+    line-height: 1.55;
+    margin-bottom: 32px;
+    color: #4a3a1c;
+  }
+  .banner strong{ color: var(--ink); }
+
+  /* ---- Auth panel ---- */
+  .auth-panel{
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 32px;
+    max-width: 420px;
+    margin: 60px auto;
+    box-shadow: var(--shadow);
+  }
+  .auth-panel h1{
+    font-family: var(--serif); font-size:22px; margin:0 0 6px;
+  }
+  .auth-panel p.sub{ font-size:13px; color:#63594a; margin:0 0 24px; }
+  .field{ margin-bottom:14px; }
+  .field label{ display:block; font-size:12px; font-weight:500; margin-bottom:5px; color:#4a4436; }
+  .field input{
+    width:100%; padding:9px 11px; font-family:var(--sans); font-size:14px;
+    border:1px solid var(--line); border-radius:4px; background:#fff;
+  }
+  .field input:focus{ outline:2px solid var(--thread-soft); outline-offset:1px; border-color:var(--thread); }
+  .demo-accounts{
+    font-size:12px; color:#63594a; margin-top:18px; padding-top:16px;
+    border-top:1px dashed var(--line); line-height:1.7;
+  }
+  .demo-accounts button{
+    background:none; border:none; color:var(--thread); text-decoration:underline;
+    cursor:pointer; font-family:var(--sans); font-size:12px; padding:0;
+  }
+
+  button.primary{
+    background: var(--ink); color: var(--parchment); border:none;
+    font-family: var(--sans); font-weight:600; font-size:14px;
+    padding: 10px 18px; border-radius: 4px; cursor:pointer;
+    width:100%;
+  }
+  button.primary:hover{ background:#2b2820; }
+  button.primary:disabled{ opacity:0.5; cursor:default; }
+
+  .error-msg{
+    background:#F6E4E0; border:1px solid var(--rust); color:#5c281f;
+    font-size:13px; padding:10px 12px; border-radius:4px; margin-bottom:14px;
+  }
+
+  /* ---- Nav ---- */
+  nav.tabs{ display:flex; gap:4px; margin-bottom:28px; }
+  nav.tabs button{
+    background:none; border:none; font-family:var(--sans); font-size:14px; font-weight:500;
+    padding:9px 4px; margin-right:22px; cursor:pointer; color:#847a63;
+    border-bottom:2px solid transparent;
+  }
+  nav.tabs button.active{ color:var(--ink); border-bottom-color:var(--thread); }
+
+  /* ---- Element cards ---- */
+  .grid{ display:grid; gap:14px; }
+  .card{
+    background: var(--card); border:1px solid var(--line); border-radius:6px;
+    padding:20px 22px; box-shadow: var(--shadow);
+    transition: border-color 0.15s;
+  }
+  .card:hover{ border-color:#a89a72; }
+  .card-top{ display:flex; justify-content:space-between; align-items:flex-start; gap:12px; }
+  .card-title{ font-family: var(--serif); font-size:19px; font-weight:600; line-height:1.3; }
+  .card-title a{ text-decoration:none; }
+  .card-title a:hover{ text-decoration:underline; text-decoration-color:var(--thread); }
+  .badges{ display:flex; gap:6px; flex-wrap:wrap; margin-top:8px; }
+  .badge{
+    font-size:10px; font-weight:600; letter-spacing:0.04em; text-transform:uppercase;
+    padding:3px 8px; border-radius:20px; white-space:nowrap;
+  }
+  .badge.active{ background:#E4EADB; color:var(--sage); }
+  .badge.inactive{ background:#EEE9DB; color:#8a8064; }
+  .badge.derivative{ background:#F2E4CB; color:var(--thread); }
+  .badge.tombstoned{ background:#F2DEDA; color:var(--rust); }
+  .badge.type{ background:#EEE9DB; color:#5c5541; }
+  .meta{ font-size:12px; color:#7a7159; margin-top:10px; }
+  .meta .owner{ font-weight:500; color:#4a4436; }
+
+  .empty{
+    text-align:center; padding:56px 20px; color:#8a8064; font-size:14px;
+  }
+  .empty .big{ font-family:var(--serif); font-size:20px; color:var(--ink); margin-bottom:6px; }
+
+  /* ---- Create form ---- */
+  .create-row{ display:flex; gap:10px; margin-bottom:24px; }
+  .create-row select, .create-row input{
+    padding:9px 11px; font-family:var(--sans); font-size:14px;
+    border:1px solid var(--line); border-radius:4px; background:#fff;
+  }
+  .create-row input{ flex:1; }
+  .create-row button{
+    background:var(--thread); color:#fff; border:none; font-weight:600;
+    padding:9px 18px; border-radius:4px; cursor:pointer; font-family:var(--sans); font-size:14px;
+    white-space:nowrap;
+  }
+  .create-row button:hover{ background:#a1762f; }
+
+  /* ---- Detail / lineage view ---- */
+  .back-link{ font-size:13px; color:var(--thread); text-decoration:none; display:inline-block; margin-bottom:20px; }
+  .back-link:hover{ text-decoration:underline; }
+
+  .detail-card{
+    background: var(--card); border:1px solid var(--line); border-radius:6px;
+    padding:28px 30px; margin-bottom:8px;
+  }
+  .detail-card h2{ font-family:var(--serif); font-size:26px; margin:0 0 4px; }
+  .detail-body{ font-size:14px; line-height:1.65; color:#3a352a; margin:16px 0; white-space:pre-wrap; }
+  .detail-body .k{ font-weight:600; color:var(--ink); }
+  .detail-actions{ display:flex; gap:10px; margin-top:20px; flex-wrap:wrap; }
+  .btn{
+    font-family:var(--sans); font-size:13px; font-weight:600; padding:9px 16px;
+    border-radius:4px; cursor:pointer; border:1px solid transparent;
+  }
+  .btn-activate{ background:var(--sage); color:#fff; }
+  .btn-activate:hover{ background:#586549; }
+  .btn-deactivate{ background:none; border-color:var(--line); color:#4a4436; }
+  .btn-deactivate:hover{ border-color:var(--ink); }
+  .btn-derive{ background:var(--thread); color:#fff; }
+  .btn-derive:hover{ background:#a1762f; }
+  .btn-derive:disabled{ background:#d9cfb2; cursor:default; }
+  .btn-remove{ background:none; border-color:var(--rust); color:var(--rust); }
+  .btn-remove:hover{ background:#F6E4E0; }
+  .btn-restore{ background:var(--sage); color:#fff; }
+  .btn-restore:hover{ background:#586549; }
+  .btn-edit{ background:none; border-color:var(--line); color:#4a4436; }
+  .btn-edit:hover{ border-color:var(--ink); }
+  .btn-save{ background:var(--ink); color:var(--parchment); }
+  .btn-save:hover{ background:#2b2820; }
+  .btn-cancel{ background:none; border-color:var(--line); color:#847a63; }
+  .btn-cancel:hover{ border-color:#847a63; }
+  .hint{ font-size:12px; color:#8a8064; margin-top:4px; }
+
+  /* ---- Edit form ---- */
+  .edit-form h2 input{
+    font-family:var(--serif); font-size:26px; font-weight:600;
+    width:100%; padding:4px 2px; margin:0 0 4px;
+    border:none; border-bottom:2px solid var(--thread-soft); background:transparent;
+    color:var(--ink);
+  }
+  .edit-form h2 input:focus{ outline:none; border-bottom-color:var(--thread); }
+  .edit-field{ margin-top:16px; }
+  .edit-field label{
+    display:block; font-size:11px; font-weight:600; letter-spacing:0.04em;
+    text-transform:uppercase; color:#8a8064; margin-bottom:6px;
+  }
+  .edit-field textarea{
+    width:100%; font-family:var(--sans); font-size:14px; line-height:1.6;
+    padding:10px 12px; border:1px solid var(--line); border-radius:4px;
+    background:#fff; color:var(--ink); resize:vertical; min-height:64px;
+  }
+  .edit-field textarea:focus{ outline:2px solid var(--thread-soft); outline-offset:1px; border-color:var(--thread); }
+  .edit-note{
+    font-size:11px; color:#a89a72; margin-top:14px; padding-top:12px;
+    border-top:1px dashed var(--line); line-height:1.6;
+  }
+
+  /* ---- Lineage graph ---- */
+  .lineage-wrap{ margin-top:36px; }
+  .lineage-label{
+    font-size:12px; font-weight:600; letter-spacing:0.06em; text-transform:uppercase;
+    color:#8a8064; margin-bottom:18px;
+  }
+  .lineage-node{
+    display:flex; align-items:center; gap:16px; margin-bottom:0;
+  }
+  .lineage-node .dot{
+    width:11px; height:11px; border-radius:50%; background:var(--thread);
+    border:2px solid var(--parchment); box-shadow:0 0 0 1px var(--thread);
+    flex-shrink:0;
+  }
+  .lineage-node.self .dot{ background:var(--ink); box-shadow:0 0 0 1px var(--ink); width:13px; height:13px; }
+  .lineage-node .stem{
+    width:2px; background:var(--thread); align-self:stretch; margin-left:5px;
+    min-height:28px;
+  }
+  .lineage-node.self .stem{ background:var(--ink); margin-left:6px; }
+  .lineage-card-mini{
+    background:var(--card); border:1px solid var(--line); border-radius:5px;
+    padding:12px 16px; flex:1;
+  }
+  .lineage-card-mini.self{ border-color:var(--ink); border-width:1.5px; }
+  .lineage-card-mini a{ font-family:var(--serif); font-size:15px; text-decoration:none; }
+  .lineage-card-mini a:hover{ text-decoration:underline; }
+  .lineage-children{ margin-left: 22px; padding-left:0; margin-top:2px; }
+  .lineage-empty-children{ font-size:12px; color:#a89a72; margin-left:38px; margin-top:6px; font-style:italic; }
+
+  /* ---- Composition (Chapters on a Work, Blocks on other Elements) ---- */
+  .comp-wrap{ margin-top:32px; }
+  .comp-label{
+    font-size:12px; font-weight:600; letter-spacing:0.06em; text-transform:uppercase;
+    color:#8a8064; margin-bottom:14px; display:flex; justify-content:space-between; align-items:center;
+  }
+  .comp-list{ display:grid; gap:8px; margin-bottom:14px; }
+  .comp-row{
+    display:flex; align-items:center; justify-content:space-between; gap:12px;
+    background: var(--card); border:1px solid var(--line); border-radius:5px;
+    padding:10px 14px;
+  }
+  .comp-row a{ font-family:var(--serif); font-size:15px; text-decoration:none; }
+  .comp-row a:hover{ text-decoration:underline; }
+  .comp-row .comp-remove{
+    background:none; border:none; color:#a89a72; font-size:12px; cursor:pointer;
+    padding:2px 6px;
+  }
+  .comp-row .comp-remove:hover{ color:var(--rust); }
+  .comp-add-row{ display:flex; gap:8px; }
+  .comp-add-row select{
+    flex:1; padding:8px 10px; font-family:var(--sans); font-size:13px;
+    border:1px solid var(--line); border-radius:4px; background:#fff;
+  }
+  .comp-add-row button{
+    background:var(--thread); color:#fff; border:none; font-weight:600;
+    padding:8px 16px; border-radius:4px; cursor:pointer; font-family:var(--sans); font-size:13px;
+    white-space:nowrap;
+  }
+  .comp-add-row button:hover{ background:#a1762f; }
+  .comp-add-row button:disabled{ background:#d9cfb2; cursor:default; }
+
+  /* ---- Collections ---- */
+  .coll-card{
+    background: var(--card); border:1px solid var(--line); border-radius:6px;
+    padding:18px 22px; box-shadow: var(--shadow); display:flex;
+    justify-content:space-between; align-items:center; margin-bottom:12px;
+  }
+  .coll-card a{ font-family:var(--serif); font-size:18px; text-decoration:none; }
+  .coll-card a:hover{ text-decoration:underline; text-decoration-color:var(--thread); }
+  .coll-card .count{ font-size:12px; color:#8a8064; }
+  .coll-add-form{ display:flex; gap:10px; margin-bottom:28px; }
+  .coll-add-form input{
+    flex:1; padding:9px 11px; font-family:var(--sans); font-size:14px;
+    border:1px solid var(--line); border-radius:4px; background:#fff;
+  }
+  .coll-add-form button{
+    background:var(--thread); color:#fff; border:none; font-weight:600;
+    padding:9px 18px; border-radius:4px; cursor:pointer; font-family:var(--sans); font-size:14px;
+  }
+  .coll-add-form button:hover{ background:#a1762f; }
+  .coll-item-row{
+    display:flex; justify-content:space-between; align-items:center;
+    background:var(--card); border:1px solid var(--line); border-radius:5px;
+    padding:12px 16px; margin-bottom:8px;
+  }
+  .coll-item-row a{ font-family:var(--serif); font-size:15px; text-decoration:none; }
+  .coll-item-row a:hover{ text-decoration:underline; }
+  .coll-publish-row{
+    background: #FBF3D9; border:1px solid var(--thread-soft); border-radius:6px;
+    padding:20px 22px; margin-top:28px;
+  }
+  .coll-publish-row h3{ font-family:var(--serif); font-size:17px; margin:0 0 4px; }
+  .coll-publish-row p{ font-size:13px; color:#5c5541; margin:0 0 14px; line-height:1.5; }
+  .coll-publish-form{ display:flex; gap:10px; }
+  .coll-publish-form input{
+    flex:1; padding:9px 11px; font-family:var(--sans); font-size:14px;
+    border:1px solid var(--thread-soft); border-radius:4px; background:#fff;
+  }
+  .coll-publish-form button{
+    background:var(--ink); color:var(--parchment); border:none; font-weight:600;
+    padding:9px 18px; border-radius:4px; cursor:pointer; font-family:var(--sans); font-size:14px;
+    white-space:nowrap;
+  }
+  .coll-publish-form button:hover{ background:#2b2820; }
+
+  .toast{
+    position:fixed; bottom:24px; left:50%; transform:translateX(-50%);
+    background:var(--ink); color:var(--parchment); font-size:13px; font-weight:500;
+    padding:11px 20px; border-radius:6px; box-shadow:0 6px 20px rgba(0,0,0,0.2);
+    opacity:0; pointer-events:none; transition:opacity 0.2s, transform 0.2s;
+    z-index:100;
+  }
+  .toast.show{ opacity:1; transform:translateX(-50%) translateY(-4px); }
+  .toast.error{ background:var(--rust); }
+
+  .loading{ text-align:center; padding:60px; color:#8a8064; font-size:14px; }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ transition:none !important; animation:none !important; }
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap" id="app">
+  <div class="loading">Loading the atom…</div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script>
+const SUPABASE_URL = 'https://graolhunmxbliftcdues.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_19EV6k3ps85iM3PrtYCi-w_FK6rXgPD';
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+const DEMO_ACCOUNTS = [
+  { email: 'maren@demo.openeppic.test', label: 'Maren — world owner' },
+  { email: 'theo@demo.openeppic.test',  label: 'Theo — sub-creator' }
+];
+const DEMO_PASSWORD = 'demo-atom-2026';
+
+let state = {
+  session: null,
+  view: 'list',      // 'list' | 'detail' | 'collections' | 'collection-detail'
+  elements: [],
+  links: [],          // element_links_public rows
+  collections: [],    // collections_with_counts rows
+  collectionItems: [], // collection_items_public rows, for the currently-open collection
+  selectedId: null,
+  selectedCollectionId: null,
+  loading: true,
+  editing: false,    // true while the detail view shows the edit form for selectedId
+};
+
+const app = document.getElementById('app');
+const toastEl = document.getElementById('toast');
+
+function showToast(msg, isError=false){
+  toastEl.textContent = msg;
+  toastEl.className = 'toast show' + (isError ? ' error' : '');
+  setTimeout(()=> toastEl.className = 'toast', 2600);
+}
+
+function escapeHtml(s){
+  return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+function typeBadge(t){ return `<span class="badge type">${escapeHtml(t)}</span>`; }
+
+function statusBadges(el){
+  let out = '';
+  if (el.is_tombstoned) out += `<span class="badge tombstoned">Removed</span>`;
+  else if (el.is_active) out += `<span class="badge active">Activated</span>`;
+  else out += `<span class="badge inactive">Not activated</span>`;
+  if (el.is_derivative) out += `<span class="badge derivative">Derivative</span>`;
+  if (el.was_restored) out += `<span class="badge derivative">Restored</span>`;
+  return out;
+}
+
+// ---------------------------------------------------------------------
+// Auth
+// ---------------------------------------------------------------------
+
+async function init(){
+  const { data: { session } } = await sb.auth.getSession();
+  state.session = session;
+  if (session) {
+    await loadElements();
+    await loadCollections();
+  } else {
+    state.loading = false;
+  }
+  render();
+}
+
+async function signIn(email, password){
+  const { error } = await sb.auth.signInWithPassword({ email, password });
+  if (error){ showToast(error.message, true); return; }
+  state.session = (await sb.auth.getSession()).data.session;
+  state.loading = true;
+  render();
+  await loadElements();
+  await loadCollections();
+  render();
+}
+
+async function signOut(){
+  await sb.auth.signOut();
+  state.session = null;
+  state.elements = [];
+  state.view = 'list';
+  state.editing = false;
+  render();
+}
+
+function currentUserId(){ return state.session?.user?.id; }
+function currentUserEmail(){ return state.session?.user?.email; }
+
+// ---------------------------------------------------------------------
+// Data
+// ---------------------------------------------------------------------
+
+async function loadElements(){
+  state.loading = true;
+  const { data, error } = await sb
+    .from('elements_public')
+    .select('*')
+    .order('created_at', { ascending: true });
+  if (error){ showToast('Could not load elements: ' + error.message, true); state.loading = false; return; }
+  state.elements = data || [];
+
+  const { data: linkData, error: linkError } = await sb
+    .from('element_links_public')
+    .select('*')
+    .order('position', { ascending: true });
+  state.loading = false;
+  if (linkError){ showToast('Could not load links: ' + linkError.message, true); return; }
+  state.links = linkData || [];
+}
+
+async function loadCollections(){
+  const { data, error } = await sb
+    .from('collections_with_counts')
+    .select('*')
+    .order('created_at', { ascending: true });
+  if (error){ showToast('Could not load collections: ' + error.message, true); return; }
+  state.collections = data || [];
+}
+
+async function loadCollectionItems(collectionId){
+  const { data, error } = await sb
+    .from('collection_items_public')
+    .select('*')
+    .eq('collection_id', collectionId)
+    .order('title', { ascending: true });
+  if (error){ showToast('Could not load collection items: ' + error.message, true); return; }
+  state.collectionItems = data || [];
+}
+
+function childrenOfLink(parentId){
+  return state.links.filter(l => l.parent_id === parentId);
+}
+
+async function createElement(type, title){
+  if (!title.trim()) return;
+  const { error } = await sb.from('elements').insert({ type, title: title.trim() });
+  if (error){ showToast(error.message, true); return; }
+  showToast('Element created — not yet activated.');
+  await loadElements();
+  render();
+}
+
+async function attachChapterToWork(workId, chapterId){
+  const { error } = await sb.rpc('attach_chapter_to_work', { p_work_id: workId, p_chapter_id: chapterId });
+  if (error){ showToast(error.message, true); return; }
+  showToast('Chapter attached.');
+  await loadElements();
+  render();
+}
+
+async function detachChapterFromWork(workId, chapterId){
+  const { error } = await sb.rpc('detach_chapter_from_work', { p_work_id: workId, p_chapter_id: chapterId });
+  if (error){ showToast(error.message, true); return; }
+  showToast('Chapter detached — the Chapter itself still exists.');
+  await loadElements();
+  render();
+}
+
+async function deriveBlockInto(hostId, blockId){
+  const { error } = await sb.rpc('derive_block_into', { p_host_id: hostId, p_block_id: blockId });
+  if (error){ showToast(error.message, true); return; }
+  showToast('Block copied in. It has its own lineage back to the original.');
+  await loadElements();
+  render();
+}
+
+async function createCollection(title){
+  if (!title.trim()) return;
+  const { data, error } = await sb.rpc('create_collection', { p_title: title.trim() });
+  if (error){ showToast(error.message, true); return; }
+  showToast('Collection created.');
+  await loadCollections();
+  state.selectedCollectionId = data.id;
+  state.view = 'collection-detail';
+  await loadCollectionItems(data.id);
+  render();
+}
+
+async function addToCollection(collectionId, elementId){
+  const { error } = await sb.rpc('add_to_collection', { p_collection_id: collectionId, p_element_id: elementId });
+  if (error){ showToast(error.message, true); return; }
+  showToast('Added to collection.');
+  await loadCollectionItems(collectionId);
+  await loadCollections();
+  render();
+}
+
+async function removeFromCollection(collectionId, elementId){
+  const { error } = await sb.rpc('remove_from_collection', { p_collection_id: collectionId, p_element_id: elementId });
+  if (error){ showToast(error.message, true); return; }
+  showToast('Removed from collection.');
+  await loadCollectionItems(collectionId);
+  await loadCollections();
+  render();
+}
+
+async function publishCollection(collectionId, workTitle){
+  const { data, error } = await sb.rpc('publish_collection', { p_collection_id: collectionId, p_work_title: workTitle || null });
+  if (error){ showToast(error.message, true); return; }
+  showToast('Published as a new Work: ' + data.title);
+  await loadElements();
+  state.view = 'detail';
+  state.selectedId = data.id;
+  render();
+}
+
+async function setActivation(id, active){
+  const { error } = await sb.rpc('set_activation', { p_element_id: id, p_active: active });
+  if (error){ showToast(error.message, true); return; }
+  showToast(active ? 'Activated — open to derivation in this Space.' : 'Withdrawn — new derivations are closed. Existing ones stand.');
+  await loadElements();
+  render();
+}
+
+async function deriveElement(parentId, parentTitle){
+  const { error } = await sb.rpc('derive_element', { p_parent_id: parentId, p_title: parentTitle + ' (derived)' });
+  if (error){ showToast(error.message, true); return; }
+  showToast('Derived. The lineage line is permanent.');
+  await loadElements();
+  render();
+}
+
+async function tombstoneElement(id){
+  const { error } = await sb.rpc('tombstone_element', { p_element_id: id });
+  if (error){ showToast(error.message, true); return; }
+  showToast('Removed. It stays in the lineage graph.');
+  await loadElements();
+  render();
+}
+
+async function restoreElement(id){
+  const { error } = await sb.rpc('restore_element', { p_element_id: id });
+  if (error){ showToast(error.message, true); return; }
+  showToast('Restored — not yet activated. Activate it again to reopen derivation.');
+  await loadElements();
+  render();
+}
+
+// Direct overwrite of title/body. NOTE: the atom has no element_versions
+// table (LD 10 is MVP-scope, not prototype-scope), so this is a plain
+// UPDATE via the elements_update_own RLS policy — not the append-only,
+// versioned edit the real MVP will have. Fine for a prototype; said here
+// so the omission isn't silently forgotten.
+async function editElement(id, title, summary, notes){
+  const { error } = await sb
+    .from('elements')
+    .update({
+      title: title.trim(),
+      body: { summary: summary.trim(), notes: notes.trim() }
+    })
+    .eq('id', id);
+  if (error){ showToast(error.message, true); return; }
+  showToast('Saved.');
+  state.editing = false;
+  await loadElements();
+  render();
+}
+
+// ---------------------------------------------------------------------
+// Render — Auth screen
+// ---------------------------------------------------------------------
+
+function renderAuth(){
+  app.innerHTML = `
+    <header class="masthead">
+      <div class="title"><small>Open Eppic</small>The Atom</div>
+    </header>
+    <div class="banner">
+      <strong>Prototype, not a product.</strong> Seed content only — founder-authored,
+      disposable. No member originals enter this instance before the license is
+      attorney-reviewed.
+    </div>
+    <div class="auth-panel">
+      <h1>Sign in</h1>
+      <p class="sub">Two demo accounts. Watch what one creator opens and another builds on.</p>
+      <div id="auth-error"></div>
+      <div class="field">
+        <label for="email">Email</label>
+        <input id="email" type="email" placeholder="maren@demo.openeppic.test" />
+      </div>
+      <div class="field">
+        <label for="password">Password</label>
+        <input id="password" type="password" placeholder="demo-atom-2026" />
+      </div>
+      <button class="primary" id="signin-btn">Sign in</button>
+      <div class="demo-accounts">
+        ${DEMO_ACCOUNTS.map(a => `<div>${escapeHtml(a.label)} — <button data-email="${a.email}">use this account</button></div>`).join('')}
+      </div>
+    </div>
+  `;
+  document.getElementById('signin-btn').onclick = () => {
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
+    signIn(email, password);
+  };
+  document.querySelectorAll('.demo-accounts button').forEach(btn => {
+    btn.onclick = () => {
+      document.getElementById('email').value = btn.dataset.email;
+      document.getElementById('password').value = DEMO_PASSWORD;
+    };
+  });
+  ['email','password'].forEach(id => {
+    document.getElementById(id).addEventListener('keydown', e => {
+      if (e.key === 'Enter') document.getElementById('signin-btn').click();
+    });
+  });
+}
+
+// ---------------------------------------------------------------------
+// Render — header (shared)
+// ---------------------------------------------------------------------
+
+function renderHeader(){
+  return `
+    <header class="masthead">
+      <div class="title"><small>Open Eppic</small>The Atom</div>
+      <div class="who">
+        <span>${escapeHtml(currentUserEmail())}</span>
+        <button id="signout-btn">Sign out</button>
+      </div>
+    </header>
+    <nav class="tabs">
+      <button class="${state.view === 'list' || state.view === 'detail' ? 'active' : ''}" id="nav-elements">Elements</button>
+      <button class="${state.view === 'collections' || state.view === 'collection-detail' ? 'active' : ''}" id="nav-collections">Collections</button>
+    </nav>
+  `;
+}
+
+function bindHeader(){
+  document.getElementById('signout-btn').onclick = signOut;
+  document.getElementById('nav-elements').onclick = () => { state.view = 'list'; state.editing = false; render(); };
+  document.getElementById('nav-collections').onclick = () => { state.view = 'collections'; render(); };
+}
+
+// ---------------------------------------------------------------------
+// Render — List view
+// ---------------------------------------------------------------------
+
+function renderList(){
+  const mine = state.elements.filter(e => e.owner_id === currentUserId());
+  const others = state.elements.filter(e => e.owner_id !== currentUserId());
+
+  const cardHtml = (el) => `
+    <div class="card">
+      <div class="card-top">
+        <div>
+          <div class="card-title"><a href="#" data-open="${el.id}">${escapeHtml(el.title)}</a></div>
+          <div class="badges">${typeBadge(el.type)}${statusBadges(el)}</div>
+        </div>
+      </div>
+      <div class="meta">
+        <span class="owner">${escapeHtml(el.owner_display_name || 'unknown')}</span>
+        ${el.is_derivative ? ' · derived from another Element' : ''}
+      </div>
+    </div>
+  `;
+
+  app.innerHTML = `
+    ${renderHeader()}
+    <div class="banner">
+      <strong>Prototype, not a product.</strong> Seed content only. This instance
+      holds no real originals and executes no license.
+    </div>
+
+    <div class="create-row">
+      <select id="new-type">
+        <option value="character">Character</option>
+        <option value="setting">Setting</option>
+        <option value="event">Event</option>
+        <option value="item">Item</option>
+        <option value="system">System</option>
+        <option value="chapter">Chapter</option>
+        <option value="work">Work</option>
+        <option value="block">Block</option>
+      </select>
+      <input id="new-title" type="text" placeholder="Name a new Element…" />
+      <button id="new-create">Create</button>
+    </div>
+
+    <div class="lineage-label">Yours</div>
+    <div class="grid" style="margin-bottom:36px;">
+      ${mine.length ? mine.map(cardHtml).join('') : `<div class="empty">You haven't created anything yet.</div>`}
+    </div>
+
+    <div class="lineage-label">Open in this Space</div>
+    <div class="grid">
+      ${others.length ? others.map(cardHtml).join('') : `<div class="empty">Nothing from other creators yet.</div>`}
+    </div>
+  `;
+
+  bindHeader();
+  document.getElementById('new-create').onclick = () => {
+    const type = document.getElementById('new-type').value;
+    const title = document.getElementById('new-title').value;
+    createElement(type, title);
+    document.getElementById('new-title').value = '';
+  };
+  document.getElementById('new-title').addEventListener('keydown', e => {
+    if (e.key === 'Enter') document.getElementById('new-create').click();
+  });
+  document.querySelectorAll('[data-open]').forEach(a => {
+    a.onclick = (e) => { e.preventDefault(); state.view='detail'; state.selectedId=a.dataset.open; state.editing=false; render(); };
+  });
+}
+
+// ---------------------------------------------------------------------
+// Render — Detail / lineage view
+// ---------------------------------------------------------------------
+
+function findEl(id){ return state.elements.find(e => e.id === id); }
+
+function renderCompositionSection(el, isOwner){
+  if (el.is_tombstoned) return '';
+
+  if (el.type === 'work'){
+    const chapters = childrenOfLink(el.id); // element_links rows, child_type = 'chapter'
+    const ownChapters = isOwner
+      ? state.elements.filter(e => e.owner_id === currentUserId() && e.type === 'chapter' && !e.is_tombstoned
+          && !chapters.some(c => c.child_id === e.id))
+      : [];
+    return `
+      <div class="comp-wrap">
+        <div class="comp-label"><span>Chapters</span></div>
+        <div class="comp-list">
+          ${chapters.length ? chapters.map(c => `
+            <div class="comp-row">
+              <a href="#" data-open="${c.child_id}">${escapeHtml(c.child_title)}</a>
+              ${isOwner ? `<button class="comp-remove" data-detach="${c.child_id}">detach</button>` : ''}
+            </div>
+          `).join('') : `<div class="lineage-empty-children" style="margin-left:0;">No Chapters attached yet.</div>`}
+        </div>
+        ${isOwner ? `
+          <div class="comp-add-row">
+            <select id="comp-add-select">
+              ${ownChapters.length
+                ? ownChapters.map(c => `<option value="${c.id}">${escapeHtml(c.title)}</option>`).join('')
+                : `<option value="">No unattached Chapters of yours</option>`}
+            </select>
+            <button id="comp-add-btn" ${ownChapters.length ? '' : 'disabled'}>Attach Chapter</button>
+          </div>
+          <div class="hint">Attaching copies nothing — the Chapter stays itself, just ordered under this Work.</div>
+        ` : ''}
+      </div>
+    `;
+  }
+
+  if (el.type !== 'block'){
+    const blocks = childrenOfLink(el.id); // element_links rows, child_type = 'block'
+    const availableBlocks = isOwner
+      ? state.elements.filter(e => e.type === 'block' && e.is_derivable && e.id !== el.id)
+      : [];
+    return `
+      <div class="comp-wrap">
+        <div class="comp-label"><span>Blocks used here</span></div>
+        <div class="comp-list">
+          ${blocks.length ? blocks.map(b => `
+            <div class="comp-row">
+              <a href="#" data-open="${b.child_id}">${escapeHtml(b.child_title)}</a>
+              <span class="badge derivative">Block · own copy</span>
+            </div>
+          `).join('') : `<div class="lineage-empty-children" style="margin-left:0;">No Blocks used here yet.</div>`}
+        </div>
+        ${isOwner ? `
+          <div class="comp-add-row">
+            <select id="comp-block-select">
+              ${availableBlocks.length
+                ? availableBlocks.map(b => `<option value="${b.id}">${escapeHtml(b.title)} — ${escapeHtml(b.owner_display_name || '')}</option>`).join('')
+                : `<option value="">No activated Blocks available to reuse</option>`}
+            </select>
+            <button id="comp-block-btn" ${availableBlocks.length ? '' : 'disabled'}>Use this Block</button>
+          </div>
+          <div class="hint">This copies the Block — you get your own lineage-stamped version, not a live link. It's yours to keep even if the original changes or is withdrawn.</div>
+        ` : ''}
+      </div>
+    `;
+  }
+
+  return '';
+}
+
+function bindCompositionSection(el){
+  document.querySelectorAll('[data-detach]').forEach(btn => {
+    btn.onclick = () => detachChapterFromWork(el.id, btn.dataset.detach);
+  });
+  const addBtn = document.getElementById('comp-add-btn');
+  if (addBtn) addBtn.onclick = () => {
+    const sel = document.getElementById('comp-add-select');
+    if (sel.value) attachChapterToWork(el.id, sel.value);
+  };
+  const blockBtn = document.getElementById('comp-block-btn');
+  if (blockBtn) blockBtn.onclick = () => {
+    const sel = document.getElementById('comp-block-select');
+    if (sel.value) deriveBlockInto(el.id, sel.value);
+  };
+}
+
+function buildLineageTree(rootId){
+  // walk to the root original first
+  let node = findEl(rootId);
+  while (node && node.derived_from_id){
+    const parent = findEl(node.derived_from_id);
+    if (!parent) break;
+    node = parent;
+  }
+  const rootElementId = node ? node.id : rootId;
+
+  function childrenOf(id){
+    return state.elements.filter(e => e.derived_from_id === id);
+  }
+
+  function renderNode(id, isSelf){
+    const el = findEl(id);
+    if (!el) return `<div class="hint">This Element is not visible to you.</div>`;
+    const kids = childrenOf(id);
+    return `
+      <div class="lineage-node ${isSelf ? 'self' : ''}">
+        <div class="dot"></div>
+        <div class="lineage-card-mini ${isSelf ? 'self' : ''}">
+          <a href="#" data-open="${el.id}">${escapeHtml(el.title)}</a>
+          <div class="badges" style="margin-top:6px;">${typeBadge(el.type)}${statusBadges(el)}</div>
+        </div>
+      </div>
+      <div class="lineage-children">
+        ${kids.length
+          ? kids.map(k => renderNode(k.id, k.id === state.selectedId)).join('')
+          : (isSelf || id === rootElementId ? `<div class="lineage-empty-children">no derivatives yet</div>` : '')}
+      </div>
+    `;
+  }
+
+  return renderNode(rootElementId, rootElementId === state.selectedId);
+}
+
+function renderDetail(){
+  const el = findEl(state.selectedId);
+  if (!el){
+    state.view = 'list';
+    return renderList();
+  }
+  const isOwner = el.owner_id === currentUserId();
+  const canActivate = isOwner && !el.is_derivative && !el.is_tombstoned;
+  const canRemove = isOwner && !el.is_tombstoned;
+  const canEdit = isOwner && !el.is_tombstoned;
+  const canRestore = isOwner && el.is_tombstoned;
+
+  if (canEdit && state.editing){
+    renderDetailEditing(el);
+    return;
+  }
+
+  app.innerHTML = `
+    ${renderHeader()}
+    <a href="#" class="back-link" id="back-link">&larr; Back to all Elements</a>
+
+    <div class="detail-card">
+      <div class="badges">${typeBadge(el.type)}${statusBadges(el)}</div>
+      <h2>${escapeHtml(el.title)}</h2>
+      <div class="meta owner">by ${escapeHtml(el.owner_display_name || 'unknown')}${el.is_derivative ? ' · a derivative' : ' · an original'}</div>
+
+      ${!el.is_tombstoned ? `
+      <div class="detail-body">
+        ${el.body && el.body.summary ? `<div><span class="k">Summary.</span> ${escapeHtml(el.body.summary)}</div>` : ''}
+        ${el.body && el.body.notes ? `<div style="margin-top:10px;"><span class="k">Notes.</span> ${escapeHtml(el.body.notes)}</div>` : ''}
+        ${!el.body || (!el.body.summary && !el.body.notes) ? `<span class="hint">No content yet.</span>` : ''}
+      </div>` : `<div class="detail-body hint">This Element was removed by its creator. Its title and content are withdrawn, but its place in the lineage graph remains.${canRestore ? ' You removed it — you can bring it back below.' : ''}</div>`}
+
+      <div class="detail-actions">
+        ${canEdit ? `<button class="btn btn-edit" id="btn-edit">Edit</button>` : ''}
+        ${canActivate ? (el.is_active
+          ? `<button class="btn btn-deactivate" id="btn-deactivate">Withdraw</button>`
+          : `<button class="btn btn-activate" id="btn-activate">Activate</button>`
+        ) : ''}
+        ${!isOwner && !el.is_tombstoned ? `
+          <button class="btn btn-derive" id="btn-derive" ${el.is_derivable ? '' : 'disabled'}>
+            ${el.is_derivative ? 'Cannot derive — derivatives are closed' : (el.is_derivable ? 'Derive from this' : 'Not yet activated')}
+          </button>` : ''}
+        ${canRemove ? `<button class="btn btn-remove" id="btn-remove">Remove</button>` : ''}
+        ${canRestore ? `<button class="btn btn-restore" id="btn-restore">Restore</button>` : ''}
+      </div>
+      ${canActivate && !el.is_active ? `<div class="hint">Activating opens this Element to derivation by everyone in this Space. This is not selectively withheld, and withdrawal only closes new derivations — anything already derived stands.</div>` : ''}
+      ${canRestore ? `<div class="hint">Restoring brings back the title and content but not activation — you'll need to activate it again to reopen it to derivation.</div>` : ''}
+    </div>
+
+    ${renderCompositionSection(el, isOwner)}
+
+    <div class="lineage-wrap">
+      <div class="lineage-label">Lineage</div>
+      ${buildLineageTree(el.id)}
+    </div>
+  `;
+
+  document.getElementById('back-link').onclick = (e) => { e.preventDefault(); state.view='list'; render(); };
+  bindHeader();
+  const editBtn = document.getElementById('btn-edit');
+  if (editBtn) editBtn.onclick = () => { state.editing = true; render(); };
+  const actBtn = document.getElementById('btn-activate');
+  if (actBtn) actBtn.onclick = () => setActivation(el.id, true);
+  const deactBtn = document.getElementById('btn-deactivate');
+  if (deactBtn) deactBtn.onclick = () => setActivation(el.id, false);
+  const derBtn = document.getElementById('btn-derive');
+  if (derBtn && !derBtn.disabled) derBtn.onclick = () => deriveElement(el.id, el.title);
+  const remBtn = document.getElementById('btn-remove');
+  if (remBtn) remBtn.onclick = () => { if (confirm('Remove this Element? Its content is withdrawn but it stays in the lineage graph.')) tombstoneElement(el.id); };
+  const restoreBtn = document.getElementById('btn-restore');
+  if (restoreBtn) restoreBtn.onclick = () => restoreElement(el.id);
+  bindCompositionSection(el);
+
+  document.querySelectorAll('[data-open]').forEach(a => {
+    a.onclick = (e) => { e.preventDefault(); state.selectedId = a.dataset.open; state.editing = false; render(); };
+  });
+}
+
+function renderDetailEditing(el){
+  app.innerHTML = `
+    ${renderHeader()}
+    <a href="#" class="back-link" id="back-link">&larr; Back to all Elements</a>
+
+    <div class="detail-card edit-form">
+      <div class="badges">${typeBadge(el.type)}${statusBadges(el)}</div>
+      <h2><input id="edit-title" type="text" value="${escapeHtml(el.title)}" /></h2>
+      <div class="meta owner">by ${escapeHtml(el.owner_display_name || 'unknown')}${el.is_derivative ? ' · a derivative' : ' · an original'}</div>
+
+      <div class="edit-field">
+        <label for="edit-summary">Summary</label>
+        <textarea id="edit-summary" rows="3">${escapeHtml(el.body && el.body.summary || '')}</textarea>
+      </div>
+      <div class="edit-field">
+        <label for="edit-notes">Notes</label>
+        <textarea id="edit-notes" rows="4">${escapeHtml(el.body && el.body.notes || '')}</textarea>
+      </div>
+
+      <div class="detail-actions">
+        <button class="btn btn-save" id="btn-save">Save changes</button>
+        <button class="btn btn-cancel" id="btn-cancel">Cancel</button>
+      </div>
+
+      <div class="edit-note">
+        This overwrites the content directly. The prototype has no version
+        history — the real platform's edits are append-only (each save keeps
+        the one before it), which is deliberately not built here.
+      </div>
+    </div>
+  `;
+
+  document.getElementById('back-link').onclick = (e) => { e.preventDefault(); state.editing = false; state.view='list'; render(); };
+  bindHeader();
+  document.getElementById('btn-cancel').onclick = () => { state.editing = false; render(); };
+  document.getElementById('btn-save').onclick = () => {
+    const title = document.getElementById('edit-title').value;
+    const summary = document.getElementById('edit-summary').value;
+    const notes = document.getElementById('edit-notes').value;
+    if (!title.trim()){ showToast('Title cannot be empty.', true); return; }
+    editElement(el.id, title, summary, notes);
+  };
+}
+
+// ---------------------------------------------------------------------
+// Render — Collections list
+// ---------------------------------------------------------------------
+
+function renderCollections(){
+  app.innerHTML = `
+    ${renderHeader()}
+    <div class="coll-add-form">
+      <input id="new-coll-title" type="text" placeholder="Name a new Collection…" />
+      <button id="new-coll-create">Create</button>
+    </div>
+    ${state.collections.length ? state.collections.map(c => `
+      <div class="coll-card">
+        <a href="#" data-open-coll="${c.id}">${escapeHtml(c.title)}</a>
+        <span class="count">${c.item_count} item${c.item_count === 1 ? '' : 's'}</span>
+      </div>
+    `).join('') : `<div class="empty"><div class="big">No Collections yet.</div>Gather Elements together, then publish them as a new Work.</div>`}
+  `;
+  bindHeader();
+  document.getElementById('new-coll-create').onclick = () => {
+    const input = document.getElementById('new-coll-title');
+    createCollection(input.value);
+    input.value = '';
+  };
+  document.getElementById('new-coll-title').addEventListener('keydown', e => {
+    if (e.key === 'Enter') document.getElementById('new-coll-create').click();
+  });
+  document.querySelectorAll('[data-open-coll]').forEach(a => {
+    a.onclick = async (e) => {
+      e.preventDefault();
+      state.selectedCollectionId = a.dataset.openColl;
+      state.view = 'collection-detail';
+      await loadCollectionItems(a.dataset.openColl);
+      render();
+    };
+  });
+}
+
+// ---------------------------------------------------------------------
+// Render — Collection detail (items + publish)
+// ---------------------------------------------------------------------
+
+function renderCollectionDetail(){
+  const coll = state.collections.find(c => c.id === state.selectedCollectionId);
+  if (!coll){ state.view = 'collections'; return renderCollections(); }
+
+  const itemIds = new Set(state.collectionItems.map(i => i.element_id));
+  const addable = state.elements.filter(e =>
+    !e.is_tombstoned && !itemIds.has(e.id) &&
+    (e.owner_id === currentUserId() || e.is_active)
+  );
+
+  app.innerHTML = `
+    ${renderHeader()}
+    <a href="#" class="back-link" id="back-link">&larr; Back to Collections</a>
+
+    <div class="detail-card">
+      <h2>${escapeHtml(coll.title)}</h2>
+      <div class="meta">${state.collectionItems.length} item${state.collectionItems.length === 1 ? '' : 's'}</div>
+
+      <div class="comp-wrap" style="margin-top:20px;">
+        ${state.collectionItems.length ? state.collectionItems.map(i => `
+          <div class="coll-item-row">
+            <div>
+              <a href="#" data-open="${i.element_id}">${escapeHtml(i.title)}</a>
+              <span class="badges" style="margin-left:8px;">${typeBadge(i.type)}</span>
+            </div>
+            <button class="comp-remove" data-remove-item="${i.element_id}">remove</button>
+          </div>
+        `).join('') : `<div class="lineage-empty-children" style="margin-left:0;">Nothing added yet.</div>`}
+      </div>
+
+      <div class="comp-add-row" style="margin-top:16px;">
+        <select id="coll-add-select">
+          ${addable.length
+            ? addable.map(e => `<option value="${e.id}">${escapeHtml(e.title)} (${e.type})</option>`).join('')
+            : `<option value="">Nothing available to add</option>`}
+        </select>
+        <button id="coll-add-btn" ${addable.length ? '' : 'disabled'}>Add</button>
+      </div>
+
+      <div class="coll-publish-row">
+        <h3>Publish this Collection</h3>
+        <p>Creates a new Work. Every item becomes a Chapter — a copy of its
+        content, alphabetical by title, flat. A Work in this Collection
+        contributes its own current Chapters, not itself as one Chapter.
+        Publishing again later makes a separate, independent Work; nothing
+        here stays linked.</p>
+        <div class="coll-publish-form">
+          <input id="publish-title" type="text" placeholder="${escapeHtml(coll.title)}" />
+          <button id="publish-btn" ${state.collectionItems.length ? '' : 'disabled'}>Publish as new Work</button>
+        </div>
+      </div>
+    </div>
+  `;
+
+  document.getElementById('back-link').onclick = (e) => { e.preventDefault(); state.view = 'collections'; render(); };
+  bindHeader();
+  const addBtn = document.getElementById('coll-add-btn');
+  if (addBtn) addBtn.onclick = () => {
+    const sel = document.getElementById('coll-add-select');
+    if (sel.value) addToCollection(coll.id, sel.value);
+  };
+  document.querySelectorAll('[data-remove-item]').forEach(btn => {
+    btn.onclick = () => removeFromCollection(coll.id, btn.dataset.removeItem);
+  });
+  const pubBtn = document.getElementById('publish-btn');
+  if (pubBtn) pubBtn.onclick = () => {
+    const title = document.getElementById('publish-title').value;
+    publishCollection(coll.id, title);
+  };
+  document.querySelectorAll('[data-open]').forEach(a => {
+    a.onclick = (e) => { e.preventDefault(); state.view = 'detail'; state.selectedId = a.dataset.open; state.editing = false; render(); };
+  });
+}
+
+// ---------------------------------------------------------------------
+// Root render
+// ---------------------------------------------------------------------
+
+function render(){
+  if (!state.session){ renderAuth(); return; }
+  if (state.loading){ app.innerHTML = renderHeader() + '<div class="loading">Loading…</div>'; return; }
+  if (state.view === 'detail'){ renderDetail(); return; }
+  if (state.view === 'collections'){ renderCollections(); return; }
+  if (state.view === 'collection-detail'){ renderCollectionDetail(); return; }
+  renderList();
+}
+
+init();
+</script>
+</body>
+</html>
