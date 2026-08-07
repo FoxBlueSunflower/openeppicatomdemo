@@ -26,7 +26,7 @@ in the main `Open-Eppic` project.
 
 ## Try it
 
-Open the [live demo]([https://foxbluesunflower.github.io/openeppicatomdemo/]) and
+Open the [live demo](https://foxbluesunflower.github.io/openeppicatomdemo/) and
 sign in as either seed account:
 
 | Account | Role |
