@@ -1,0 +1,33 @@
+# Keeps the demo's free-tier Supabase project from auto-pausing.
+# Supabase pauses Free Plan projects after ~7 days of low database activity,
+# which silently breaks the live demo. A few read queries a day prevent that.
+# Uses only the public publishable key already shipped in index.html.
+name: Supabase keep-alive
+
+on:
+  schedule:
+    - cron: "17 14 * * *"   # daily, 14:17 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Query the public read surface
+        env:
+          SUPABASE_URL: https://graolhunmxbliftcdues.supabase.co
+          SUPABASE_KEY: sb_publishable_19EV6k3ps85iM3PrtYCi-w_FK6rXgPD
+        run: |
+          for i in 1 2 3; do
+            code=$(curl -s -o /dev/null -w "%{http_code}" \
+              "$SUPABASE_URL/rest/v1/elements_public?select=id&limit=1" \
+              -H "apikey: $SUPABASE_KEY" -H "Authorization: Bearer $SUPABASE_KEY")
+            echo "attempt $i: HTTP $code"
+            sleep 20
+          done
+          # Fail loudly if the project is paused or unreachable, so the
+          # Actions tab (and GitHub's failure email) shows the demo is down.
+          [ "$code" = "200" ]
